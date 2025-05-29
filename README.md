@@ -1,90 +1,90 @@
-# Ex-2-GENERATION OF LEXICAL TOKENS LEX FLEX TOOL
-# Date: 27-08-2024
-# AIM
-## To write a lex program to implement lexical analyzer to recognize a few patterns.
-# ALGORITHM
+# Ex. No : 3	
+# RECOGNITION OF A VALID ARITHMETIC EXPRESSION THAT USES
+## Register Number : 212223220121
+## Date : 29-04-15
 
+## AIM   
+To write a yacc program to recognize a valid arithmetic expression that uses operator +,- ,* and /.
+
+## ALGORITHM
 1.	Start the program.
-2.	Lex program consists of three parts.
+2.	Write a program in the vi editor and save it with .l extension.
+3.	In the lex program, write the translation rules for the operators =,+,-,*,/ and for the identifier.
+4.	Write a program in the vi editor and save it with .y extension.
+5.	Compile the lex program with lex compiler to produce output file as lex.yy.c. eg $ lex filename.l
+6.	Compile the yacc program with yacc compiler to produce output file as y.tab.c. eg $ yacc –d arith_id.y
+7.	Compile these with the C compiler as gcc lex.yy.c y.tab.c
+8.	Enter an arithmetic expression as input and the tokens are identified as output.
 
-     a.	Declaration %%
-
-     b.	Translation rules %%
-
-     c.	Auxilary procedure.
-
-3.	The declaration section includes declaration of variables, maintest, constants and regular definitions.
-4.	Translation rule of lex program are statements of the form
-
-    a.	P1 {action}
-
-    b.	P2 {action}
-
-    c.	…
-
-    d.	…
-
-    e.	Pn {action}
-
-5.	Write a program in the vi editor and save it with .l extension.
-6.	Compile the lex program with lex compiler to produce output file as lex.yy.c. eg $ lex filename.l $ cc lex.yy.c
-7.	Compile that file with C compiler and verify the output.
-
-# INPUT
-## exp2.l.txt
-```
-/* program name is lexp.l */
-%{
-/* program to recognize a C program */ int COMMENT = 0;
-%}
-
-identifier [a-zA-Z][a-zA-Z0-9]*
-
-%%
-#.* { printf("\n%s is a PREPROCESSOR DIRECTIVE", yytext); }
-int|float|char|double|while|for|do|if|break|continue|void|switch|case|long|struct|const|typedef|return|else|goto { printf("\n%s is a KEYWORD", yytext); }
-"/*" { COMMENT = 1; }
-"*/" { COMMENT = 0; }
-{identifier}\( { if (!COMMENT) printf("\n\nFUNCTION\n\t%s", yytext); }
-\{ { if (!COMMENT) printf("\n BLOCK BEGINS"); }
-\} { if (!COMMENT) printf("\n BLOCK ENDS"); }
-{identifier}(\[[0-9]*\])? { if (!COMMENT) printf("\n %s IDENTIFIER", yytext); }
-\".*\" { if (!COMMENT) printf("\n%s is a STRING", yytext); }
-[0-9]+ { if (!COMMENT) printf("\n%s is a NUMBER", yytext); }
-\)(\;)? { if (!COMMENT) printf("\n"); ECHO; printf("\n"); }
-\( ECHO;
-= { if (!COMMENT) printf("\n%s is an ASSIGNMENT OPERATOR", yytext); }
-\<=|\>=|\<|==|\> { if (!COMMENT) printf("\n\t%s is a RELATIONAL OPERATOR", yytext); }
-%%
-
-int main(int argc, char **argv) { 
-	if (argc > 1) {
-		FILE *file;
-		file = fopen(argv[1], "r"); 
-	if (!file) {
-		printf("could not open %s \n", argv[1]);
-		exit(0);
-		}
-	yyin = file;
-	}
-	yylex();
-	printf("\n\n");
-	return 0;
-}
- 
-int yywrap() {
-	return 0;
-}
-```
-## var.c
-```c
+## PROGRAM
+~~~
 #include <stdio.h>
-int main(){
-	int a,b;
-	return 0;
+#include <ctype.h>
+#include <string.h>
+
+char expr[100];
+int pos = 0;
+
+int E();
+int F();
+void error();
+
+int F() {
+    if (isdigit(expr[pos])) {
+        while (isdigit(expr[pos])) pos++;
+        return 1;
+    }
+    else if (isalpha(expr[pos])) {
+        while (isalnum(expr[pos])) pos++;
+        return 1;
+    }
+    else if (expr[pos] == '(') {
+        pos++;
+        if (E()) {
+            if (expr[pos] == ')') {
+                pos++;
+                return 1;
+            }
+        }
+        return 0;
+    }
+    return 0;
 }
-```
-# OUTPUT
-![alt text](output.png)
-# RESULT
-## The lexical analyzer is implemented using lex and the output is verified.
+
+int E() {
+    if (!F()) return 0;
+    while (expr[pos] == '+' || expr[pos] == '-' || expr[pos] == '*' || expr[pos] == '/') {
+        pos++;
+        if (!F())
+            return 0;
+    }
+    return 1;
+}
+
+void error() {
+    printf("\nError: Invalid arithmetic expression\n");
+}
+
+int main() {
+    printf("Enter the expression:\n");
+    fgets(expr, sizeof(expr), stdin);
+    expr[strcspn(expr, "\n")] = '\0';
+    pos = 0;
+    if (E() && expr[pos] == '\0') {
+        printf("\nValid arithmetic expression\n");
+    } else {
+        error();
+    }
+    return 0;
+}
+~~~
+
+## OUTPUT 
+## Valid Expression
+![438588002-6770bf7b-184c-4081-aa58-62c08f784d04](https://github.com/user-attachments/assets/94800e16-c104-4347-9dcf-d25e094b3851)
+
+## Invalid Expression
+![438589203-3d5b744b-e0da-48b7-aa74-e6715a01a23b](https://github.com/user-attachments/assets/597af70d-4e31-49b1-866c-0a5cac7fff80)
+
+## RESULT
+A YACC program to recognize a valid arithmetic expression that uses operator +,-,* and / is executed successfully and the output is verified.
